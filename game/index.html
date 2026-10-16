@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#111815" />
+    <title>FIRELINE: Air Attack</title>
+  </head>
+  <body>
+    <main id="game" aria-label="FIRELINE: Air Attack flight simulator">
+      <section class="main-menu" id="mainMenu" aria-label="Main menu">
+        <header class="menu-header"><a class="wordmark" href="#" aria-label="Fireline Air Attack"><span class="wordmark-mark">F</span><span>FIRELINE <small> AIR ATTACK</small></span></a><span class="menu-season">PINE VALLEY DISTRICT <i>·</i> WILDFIRE SEASON 26</span></header>
+        <div class="menu-home menu-view" id="menuHome">
+          <div class="menu-copy"><span class="menu-kicker"><i></i> AIR TANKER OPERATIONS</span><h1>HOLD THE<br /><em>LINE.</em></h1><p>Every fire has a beginning.<br />Choose where you answer the call.</p></div>
+          <div class="menu-actions"><button class="menu-command" id="missionsButton"><span class="menu-command-index">01</span><span><strong>MISSIONS</strong><small>CONTRACTS · TUTORIAL TO EXTREME</small></span><b>↗</b></button><button class="menu-command sandbox-command" id="sandboxButton"><span class="menu-command-index">02</span><span><strong>SANDBOX</strong><small>ALL MAPS · GOD VIEW SETUP</small></span><b>↗</b></button></div>
+          <div class="menu-foot"><span>FIRELINE: AIR ATTACK</span><span>SOLO OPERATIONS <i>·</i> ARCADE FLIGHT MODEL</span></div>
+        </div>
+        <div class="mission-picker menu-view hidden" id="missionPicker">
+          <div class="picker-heading"><button class="back-button" id="missionBack" aria-label="Back to main menu">←</button><div><span class="menu-kicker">CONTRACT BOARD</span><h2>Choose a <em>mission.</em></h2></div><span class="picker-count">11 OPERATIONS</span></div>
+          <div class="mission-list" id="missionList"></div>
+          <div class="picker-foot">SELECT A CONTRACT TO LOAD ITS MAP <span>10 KM MAP DIAMETER</span></div>
+        </div>
+        <div class="sandbox-picker menu-view hidden" id="sandboxPicker">
+          <div class="picker-heading"><button class="back-button" id="sandboxBack" aria-label="Back to main menu">←</button><div><span class="menu-kicker">FREE FLIGHT SETUP</span><h2>Build your <em>operation.</em></h2></div><span class="picker-count">ALL MAPS OPEN</span></div>
+          <div class="sandbox-layout"><div class="sandbox-map-list"><div class="field-label">SELECT MAP</div><div class="sandbox-map-grid" id="sandboxMapGrid"></div></div><div class="sandbox-config"><label class="field-label" for="sandboxAircraft">AIRCRAFT</label><select id="sandboxAircraft"></select><label class="field-label" for="sandboxAirport">START AIRPORT</label><select id="sandboxAirport"></select><div class="sandbox-note"><span class="note-mark">⌖</span><span>God view lets you place ignition points before starting the flight.</span></div><button class="god-view-button" id="godViewButton"><span>OPEN GOD VIEW</span><b>↗</b></button></div></div>
+        </div>
+      </section>
+      <canvas id="world" aria-label="3D flight scene"></canvas>
+      <div class="film-grain" aria-hidden="true"></div>
+      <section class="loading-screen hidden" id="loadingScreen" aria-live="polite"><span class="loading-mark">F</span><span class="loading-title">PREPARING AIRSPACE</span><span class="loading-detail">LOADING MAP · TERRAIN · WEATHER</span><span class="loading-track"><i></i></span></section>
+      <header class="topbar">
+        <a class="wordmark" href="#" aria-label="Fireline Air Attack home"><span class="wordmark-mark">F</span><span>FIRELINE <small> AIR ATTACK</small></span></a>
+        <div class="dispatch"><span class="live-dot"></span><span id="dispatchStatus">DISPATCH STANDBY</span><span class="dispatch-divider"></span><span id="missionClock">00:00</span></div>
+        <div class="top-actions"><span class="weather"><span class="weather-glyph">↗</span><span id="windReadout">WIND 08 KT</span></span><button class="camera-button" id="cameraButton" aria-label="Change camera view" title="Change view (C)"><span class="camera-glyph">◉</span><span id="cameraModeReadout">CHASE</span><kbd>C</kbd></button></div>
+      </header>
+
+      <section class="mission-panel" aria-label="Mission status">
+        <div class="section-kicker"><span class="kicker-line"></span> ACTIVE CONTRACT <span class="contract-id" id="contractId">PV-01</span></div>
+        <h1 id="missionTitle">First<br /><em>Response</em></h1>
+        <p class="mission-brief" id="missionBrief">A lightning strike has started a fast-moving grass fire on the east ridge. Keep it below <strong>80 acres</strong>.</p>
+        <div class="objective-row"><span class="objective-marker" id="objectiveMarker"></span><span id="objectiveText">Load water at the apron</span></div>
+        <div class="mission-progress"><div class="progress-head"><span>CONTAINMENT</span><span id="containmentReadout">0 / 80 AC</span></div><div class="progress-track"><span id="containmentBar"></span></div></div>
+      </section>
+
+      <section class="flight-panel" aria-label="Flight instruments">
+        <div class="flight-readout"><span class="readout-label">AIRSPEED</span><div class="readout-value"><strong id="speedReadout">000</strong><small>KT</small></div><div class="readout-track"><span id="speedBar"></span><i></i></div></div>
+        <div class="flight-readout"><span class="readout-label">ALTITUDE AGL</span><div class="readout-value"><strong id="altitudeReadout">000</strong><small>FT</small></div><div class="readout-track alt-track"><span id="altitudeBar"></span><i></i></div></div>
+        <div class="instrument-divider"></div>
+        <div class="heading-wrap"><span class="readout-label">HEADING</span><div class="heading-dial"><span class="heading-tick t-n">N</span><span class="heading-tick t-e">E</span><span class="heading-tick t-s">S</span><span class="heading-tick t-w">W</span><span class="heading-needle" id="headingNeedle"></span><span class="heading-center"></span></div><span class="heading-number" id="headingReadout">000°</span></div>
+      </section>
+
+      <section class="resource-panel" aria-label="Aircraft resources">
+        <div class="resource-head"><span class="readout-label" id="aircraftName">Sparrow AT-1</span><span class="aircraft-state" id="aircraftState">ON APRON</span></div>
+        <div class="resource-line"><span>WATER</span><span id="waterReadout">0 <small>/ 3,000 L</small></span></div><div class="resource-track water-track"><span id="waterBar"></span></div>
+        <div class="resource-line fuel-line"><span>FUEL</span><span id="fuelReadout">300 <small>KG</small></span></div><div class="resource-track fuel-track"><span id="fuelBar"></span></div>
+        <div class="throttle-control"><div class="resource-line"><label for="throttleSlider">THROTTLE</label><span id="throttleReadout">0%</span></div><input id="throttleSlider" type="range" min="0" max="100" value="0" aria-label="Engine throttle" /></div>
+        <div class="door-status"><span class="door-lamp" id="doorLamp"></span><span id="doorStatus">SCOOP DOOR CLOSED</span><button id="doorButton" title="Toggle scoop door (O)">OPEN</button></div>
+        <div class="door-status gear-status"><span class="door-lamp open" id="gearLamp"></span><span id="gearStatus">LANDING GEAR DOWN</span><button id="gearButton" title="Retract landing gear (G)">RETRACT</button></div>
+      </section>
+
+      <section class="map-panel" aria-label="Tactical map">
+        <div class="map-header"><span>TACTICAL</span><span class="map-scale"><span id="mapNameReadout">PINE VALLEY</span> <i>•</i> 10 KM DIA</span></div>
+        <canvas id="minimap" width="220" height="160" aria-label="Map showing aircraft, fire and water"></canvas>
+        <div class="map-legend"><span><i class="legend-plane"></i>YOU</span><span><i class="legend-fire"></i>FIRE</span><span><i class="legend-water"></i>WATER</span></div>
+      </section>
+
+      <div class="warning-banner" id="warningBanner" role="status" aria-live="polite"><span class="warning-symbol">!</span><span id="warningText">LOAD WATER TO BEGIN SORTIE</span></div>
+
+      <div class="control-hints" id="controlHints"><span><kbd>W</kbd><kbd>S</kbd> PITCH</span><span><kbd>A</kbd><kbd>D</kbd> ROLL / STEER</span><span><kbd>Q</kbd><kbd>E</kbd> RUDDER</span><span><kbd>SHIFT</kbd><kbd>CTRL</kbd> THROTTLE</span><span><kbd>F</kbd> LOAD</span><span><kbd>G</kbd> GEAR</span><span><kbd>SPACE</kbd> DROP</span><span><kbd>C</kbd> CAMERA</span><span>RIGHT-DRAG ORBIT</span></div>
+      <div class="action-dock"><button class="action-button load-action" id="loadButton"><span class="action-icon">↧</span><span><strong>LOAD WATER</strong><small>HOLD F · APRON ONLY</small></span><span class="action-progress"><i id="loadProgress"></i></span></button><button class="action-button drop-action" id="dropButton"><span class="action-icon">↓</span><span><strong>WATER DROP</strong><small>HOLD SPACE</small></span></button><button class="action-button scoop-action" id="scoopButton"><span class="action-icon">≈</span><span><strong>WATER SCOOP</strong><small>HOLD R · LOW & LEVEL</small></span></button></div>
+
+      <div class="center-reticle" aria-hidden="true"><span></span><i></i></div>
+      <section class="sandbox-panel hidden" id="sandboxPanel" aria-label="Sandbox god view controls"><div class="sandbox-panel-header"><span class="menu-kicker">SANDBOX <i>·</i> GOD VIEW</span><button id="leaveSandboxButton" class="sandbox-exit">EXIT</button></div><p id="godViewInstructions">Click terrain to place ignition points. Flight simulation is paused until launch.</p><button id="placeFireButton" class="god-tool-button active">⌖ <span>PLACE FIRE</span></button><label class="field-label" for="sandboxFireRadius">IGNITION SIZE <span id="sandboxFireRadiusValue">70 M</span></label><input id="sandboxFireRadius" type="range" min="20" max="180" step="10" value="70" /><label class="field-label" for="godAircraftSelect">AIRCRAFT</label><select id="godAircraftSelect"></select><label class="field-label" for="godAirportSelect">START AIRPORT</label><select id="godAirportSelect"></select><button id="applySandboxSetup" class="sandbox-secondary-button">APPLY AIRCRAFT / AIRPORT</button><button id="startSandboxButton" class="god-view-button"><span>START SORTIE</span><b>↗</b></button></section>
+      <section class="pause-screen hidden" id="pauseScreen"><div class="modal-kicker">FLIGHT CONTROLS</div><h2>SORTIE<br /><em>PAUSED</em></h2><p>Your aircraft and the fire are holding position.</p><button class="start-button" id="resumeButton"><span>RESUME FLIGHT</span><b>↗</b></button><div class="pause-instructions"><span><kbd>ESC</kbd> RESUME</span><span><kbd>O</kbd> SCOOP DOOR</span><span><kbd>C</kbd> CAMERA</span><span>RIGHT-DRAG ORBIT</span><span><kbd>SPACE</kbd> DROP WATER</span></div></section>
+      <section class="results-screen hidden" id="resultsScreen"><div class="modal-kicker" id="resultKicker">MISSION COMPLETE</div><h2 id="resultTitle">FIRE<br /><em>CONTAINED</em></h2><p id="resultSummary">The ridge is secure. Good flying, tanker.</p><div class="result-stats"><span>ACRES BURNED<strong id="resultAcres">0.0</strong></span><span>WATER ON TARGET<strong id="resultAccuracy">0%</strong></span><span>CONTRACT PAY<strong id="resultPay">$3,000</strong></span></div><button class="start-button" id="retryButton"><span>FLY AGAIN</span><b>↗</b></button></section>
+      <div class="toast" id="toast" role="status"></div>
+      <div class="mobile-controls" aria-label="Touch flight controls"><div class="touch-stick" id="touchStick"><span></span><i></i></div><div class="touch-actions"><button id="touchDrop" aria-label="Drop water">↓</button><button id="touchLoad" aria-label="Load water">↧</button><button id="touchDoor" aria-label="Toggle scoop door">≈</button><input id="mobileThrottle" type="range" min="0" max="100" value="0" aria-label="Throttle" /></div></div>
+    </main>
+    <script type="module" src="/src/menu.js"></script>
+  </body>
+</html>
